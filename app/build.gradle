@@ -23,6 +23,7 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         manifestPlaceholders = [GOOGLE_MAPS_API_KEY: "${properties.getProperty('GOOGLE_MAPS_API_KEY')}"]
+        resValue "string", "GOOGLE_MAPS_API_KEY", properties.getProperty("GOOGLE_MAPS_API_KEY")
     }
 
     buildTypes {
@@ -62,6 +63,7 @@ dependencies {
     implementation 'androidx.compose.material:material:1.2.0'
 
     implementation "com.google.android.material:material:1.8.0"
+    implementation project(path: ':domain')
     implementation project(path: ':data')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

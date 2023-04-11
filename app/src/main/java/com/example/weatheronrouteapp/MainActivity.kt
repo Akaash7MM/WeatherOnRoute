@@ -8,9 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
-import com.example.weatheronroute.Repository.MapsRepository
 import com.example.weatheronroute.Repository.MapsRepositoryImpl
-import com.example.weatheronroute.ktor.DirectionsApi
+import com.example.domain.DirectionsApi
+import com.example.domain.MapsRepository
+import com.example.domain.usecases.GetPolylineForNamesUsecase
 import com.example.weatheronroute.ktor.DirectionsApiImpl
 import com.example.weatheronrouteapp.theme.WeatherOnRouteAppTheme
 import com.example.weatheronrouteapp.ui.MainScreen
@@ -25,8 +26,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val api: DirectionsApi = DirectionsApiImpl(AndroidClientEngine(config = AndroidEngineConfig()))
     private val mapRepo: MapsRepository = MapsRepositoryImpl(api)
+    private val usecase = GetPolylineForNamesUsecase(mapRepo)
     private val viewModel: MapViewModel by lazy {
-        MapViewModel(mapRepo)
+        MapViewModel(usecase)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

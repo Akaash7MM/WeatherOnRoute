@@ -1,5 +1,10 @@
 package com.example.weatheronroute.ktor
 
+import com.example.data.util.Constants.API_KEY
+import com.example.data.util.Constants.GOOGLE_MAPS_BASE_URL
+import com.example.domain.DirectionsApi
+import com.example.domain.util.Resource
+import com.example.domain.util.safeResult
 import com.example.weatheronroute.model.DirectionsResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -10,7 +15,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import kotlin.collections.get
 
 class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
     private val client = HttpClient(engine) {
@@ -31,8 +35,18 @@ class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
         }
     }
 
-    override suspend fun getDirections(origin: String, destination: String): DirectionsResponse {
-        return client.get("https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=AIzaSyB3h_km8dGJ_MP6Q6xDcwQNBrYuwknbn8g") {
-        }.body()
+    override suspend fun getDirections(origin: String, destination: String): Resource<DirectionsResponse> {
+        return safeResult {
+            client.get {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = GOOGLE_MAPS_BASE_URL
+                    path("maps", "api", "directions", "json")
+                    parameters.append("origin", origin)
+                    parameters.append("destination", destination)
+                    parameters.append("key", API_KEY)
+                }
+            }.body()
+        }
     }
 }

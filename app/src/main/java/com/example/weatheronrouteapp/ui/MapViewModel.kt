@@ -2,20 +2,33 @@ package com.example.weatheronrouteapp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatheronroute.Repository.MapsRepository
+import com.example.domain.usecases.GetPolylineForNamesUsecase
+import com.example.domain.util.Resource
+import com.example.weatheronroute.android.LocationFields
 import com.example.weatheronroute.android.MapState
+import com.example.weatheronrouteapp.util.Mapper.toLatLng
+import com.example.weatheronrouteapp.util.SnackbarEvents
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class MapViewModel(private val mapsRepository: MapsRepository) : ViewModel() {
+class MapViewModel(val polylineForNamesUsecase: GetPolylineForNamesUsecase) : ViewModel() {
 
-    val mapState: MutableStateFlow<MapState> = MutableStateFlow(MapState(null, null, null))
+    val mapState: MutableStateFlow<MapState> = MutableStateFlow(MapState())
+    private val _locationFields: MutableStateFlow<LocationFields> = MutableStateFlow(LocationFields())
+    val locationFields = _locationFields
 
+    private val errorEvent: Channel<SnackbarEvents> = Channel()
+    val _errorEvent = errorEvent.receiveAsFlow()
+
+    init {
+        setUiStateData(_locationFields.value.originString, _locationFields.value.destinationString)
+    }
     fun getDeviceLocation(fusedLocationProviderClient: FusedLocationProviderClient) {
         try {
             val locationResult = fusedLocationProviderClient.lastLocation
@@ -28,60 +41,26 @@ class MapViewModel(private val mapsRepository: MapsRepository) : ViewModel() {
         }
     }
 
-    fun getDirections(origin: String, destination: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            var latlngList: List<LatLng> = ArrayList()
-            val steps = mapsRepository.getDirections(
-                origin,
-                destination
-            ).routes[0].legs[0].steps
-
-            for (step in steps) {
-                latlngList = latlngList + decodePoly(step.polyline.points)
+    fun getDirections() {
+        viewModelScope.launch {
+            val response = polylineForNamesUsecase(_locationFields.value.originString, _locationFields.value.destinationString)
+            when (response) {
+                is Resource.Success -> {
+                    val latlngList = response.data.map { it.toLatLng() }
+                    val startPointState = CameraPositionState(CameraPosition(latlngList[0], 7.0F, 0.0F, 0.0F))
+                    mapState.tryEmit(MapState(cameraLocationZoom = startPointState, polylines = latlngList))
+                }
+                is Resource.Failure -> {
+                    errorEvent.send(SnackbarEvents(response.throwable.message.toString()))
+                }
             }
-            val startPointState = CameraPositionState(CameraPosition(latlngList[0], 7.0F, 0.0F, 0.0F))
-            mapState.tryEmit(mapState.value.copy(cameraLocationZoom = startPointState, polylines = latlngList))
         }
+    }
+    fun setUiStateData(origin: String, destination: String) {
+        _locationFields.value = _locationFields.value.copy(originString = origin, destinationString = destination)
     }
 
     fun setCameraLocationZoom(latLng: LatLng, zoom: Float) {
         mapState.tryEmit(mapState.value.copy(cameraLocationZoom = CameraPositionState(CameraPosition(latLng, zoom, 0.0F, 0.0F))))
-    }
-    fun decodePoly(encoded: String): List<LatLng> {
-        val poly = ArrayList<LatLng>()
-        var index = 0
-        val len = encoded.length
-        var lat = 0
-        var lng = 0
-
-        while (index < len) {
-            var b: Int
-            var shift = 0
-            var result = 0
-            do {
-                b = encoded[index++].code - 63
-                result = result or (b and 0x1f shl shift)
-                shift += 5
-            } while (b >= 0x20)
-            val dlat = if (result and 1 != 0) (result shr 1).inv() else result shr 1
-            lat += dlat
-
-            shift = 0
-            result = 0
-            do {
-                b = encoded[index++].code - 63
-                result = result or (b and 0x1f shl shift)
-                shift += 5
-            } while (b >= 0x20)
-            val dlng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
-            lng += dlng
-
-            val p = LatLng(
-                lat.toDouble() / 1E5,
-                lng.toDouble() / 1E5
-            )
-            poly.add(p)
-        }
-        return poly
     }
 }
