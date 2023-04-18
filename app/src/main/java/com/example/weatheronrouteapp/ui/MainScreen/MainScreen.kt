@@ -23,9 +23,8 @@ fun MainScreen(viewModel: MapViewModel) {
     val mapState by viewModel.mapState.collectAsState()
     val uiState by viewModel.locationFields.collectAsState()
     val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
+    val errorEvents by viewModel.errorEvent.collectAsState(initial = null)
     Scaffold(scaffoldState = scaffoldState) {
-        val errorEvents by viewModel._errorEvent.collectAsState(initial = null)
         val mapProperties = MapProperties(
             isMyLocationEnabled = mapState.lastKnownLocation != null
         )
@@ -33,7 +32,9 @@ fun MainScreen(viewModel: MapViewModel) {
         val cameraPositionState = CameraPositionState(CameraPosition(initialLocation, 0.0F, 0.0F, 0.0F))
 
         LaunchedEffect(key1 = errorEvents) {
-            scaffoldState.snackbarHostState.showSnackbar(errorEvents?.message.toString())
+            errorEvents?.message?.let {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
         }
 
         Surface(

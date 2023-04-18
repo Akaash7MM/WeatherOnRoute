@@ -1,9 +1,9 @@
-package com.example.weatheronroute.model
+package com.example.domain.models.maps
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Southwest(
+data class StartLocation(
     val lat: Double,
     val lng: Double
 )

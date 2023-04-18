@@ -1,19 +1,27 @@
 package com.example.domain.usecases
 
 import com.example.domain.MapsRepository
+import com.example.domain.PointsTime
+import com.example.domain.PolylineData
 import com.example.domain.util.Resource
 
-class GetPolylineForNamesUsecase(val mapsRepository: MapsRepository) {
-    suspend operator fun invoke(origin: String, destination: String): Resource<List<Pair<Double, Double>>> {
+class GetPolylineForNamesUsecase(private val mapsRepository: MapsRepository) {
+    suspend operator fun invoke(origin: String, destination: String): Resource<PolylineData> {
         val response = mapsRepository.getDirections(origin, destination)
         return when (response) {
             is Resource.Success -> {
                 val latlngList = mutableListOf<Pair<Double, Double>>()
+                val pointsTime = mutableListOf<PointsTime>()
                 val steps = response.data.routes[0].legs[0].steps
                 for (step in steps) {
+                    val timeFromOrigin = if (pointsTime.lastIndex == -1)step.duration.value else pointsTime[pointsTime.lastIndex].timeFromOrigin + step.duration.value
+                    val endLocation = step.end_location
+                    val endLocationPair = Pair(endLocation.lat, endLocation.lng)
+                    pointsTime.add(PointsTime(endLocationPair, timeFromOrigin))
                     latlngList.addAll(decodePoly(step.polyline.points))
                 }
-                Resource.Success(latlngList)
+                val polylineData = PolylineData(latlngList, pointsTime)
+                Resource.Success(polylineData)
             }
             is Resource.Failure -> response
         }

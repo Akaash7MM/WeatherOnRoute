@@ -1,11 +1,9 @@
 package com.example.weatheronroute.Repository
 
-import com.example.data.util.MapUtils.decodePoly
 import com.example.domain.DirectionsApi
 import com.example.domain.MapsRepository
-import com.example.domain.PolylineTime
 import com.example.domain.util.Resource
-import com.example.weatheronroute.model.DirectionsResponse
+import com.example.domain.models.maps.DirectionsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
