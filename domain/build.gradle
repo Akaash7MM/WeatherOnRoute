@@ -11,5 +11,6 @@ java {
 }
 dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
 //    implementation 'com.google.android.gms:play-services-location:21.0.1'
 }

@@ -1,7 +1,9 @@
 package com.example.weatheronrouteapp.ui
 
+import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.usecases.GetGeocoderForNameUseCase
 import com.example.domain.usecases.GetPolylineForNamesUsecase
 import com.example.domain.usecases.GetWeatherTimelinesUseCase
 import com.example.domain.util.Resource
@@ -13,24 +15,31 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MapViewModel(
     val polylineForNamesUsecase: GetPolylineForNamesUsecase,
-    val weatherTimelinesUseCase: GetWeatherTimelinesUseCase
+    val weatherTimelinesUseCase: GetWeatherTimelinesUseCase,
+    val getGeocoderForNameUseCase: GetGeocoderForNameUseCase
 ) : ViewModel() {
 
     val mapState: MutableStateFlow<MapState> = MutableStateFlow(MapState())
+
     private val _locationFields: MutableStateFlow<LocationFields> = MutableStateFlow(LocationFields())
     val locationFields = _locationFields.asStateFlow()
 
     private val _errorEvent = MutableSharedFlow<SnackbarEvents>()
     val errorEvent = _errorEvent.asSharedFlow()
 
-    init {
-        setUiStateData(_locationFields.value.originString, _locationFields.value.destinationString)
-    }
+    private val _addressList: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    val addressList = _addressList.asStateFlow()
+
+    private val _lastEditedWasStart:MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    val lastEditedWasStart = _lastEditedWasStart.asStateFlow()
+
     fun getDeviceLocation(fusedLocationProviderClient: FusedLocationProviderClient) {
         try {
             val locationResult = fusedLocationProviderClient.lastLocation
@@ -61,8 +70,21 @@ class MapViewModel(
             }
         }
     }
-    fun setUiStateData(origin: String, destination: String) {
+    fun setUiStateData(origin: String, destination: String,lastEdited:Boolean) {
         _locationFields.value = _locationFields.value.copy(originString = origin, destinationString = destination)
+        _lastEditedWasStart.value = lastEdited
+    }
+    fun getGeocoderData(locationName:String) {
+        viewModelScope.launch {
+            getGeocoderForNameUseCase(locationName).collectLatest {addressList ->
+                _addressList.emit(addressList)
+            }
+        }
+    }
+
+    fun resetLocationFields(){
+        _locationFields.value = LocationFields("","")
+        _addressList.value = emptyList()
     }
 
     fun setCameraLocationZoom(latLng: LatLng, zoom: Float) {

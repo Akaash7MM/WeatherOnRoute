@@ -12,14 +12,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.weatheronrouteapp.ui.MainScreen.LocationInputBox
+import androidx.navigation.NavController
+import com.example.weatheronrouteapp.ui.MainScreen.EnterLocationField
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen(viewModel: MapViewModel) {
+fun MainScreen(viewModel: MapViewModel,navController: NavController) {
     val mapState by viewModel.mapState.collectAsState()
     val uiState by viewModel.locationFields.collectAsState()
     val scaffoldState = rememberScaffoldState()
@@ -55,25 +56,8 @@ fun MainScreen(viewModel: MapViewModel) {
                     }
                 }
             }
-            LocationInputBox(uiState.originString, uiState.destinationString, viewModel)
-            Button(
-                onClick = { viewModel.getDirections() },
-                modifier = Modifier
-                    .padding(16.dp)
-                    .wrapContentHeight(Alignment.Bottom)
-                    .background(
-                        color = Color.Black,
-                        shape = RoundedCornerShape(18.dp)
-                    ),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
-            ) {
-                Text(
-                    text = "Show Timeline",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            EnterLocationField(navController = navController,viewModel = viewModel)
+
         }
     }
 }
