@@ -50,9 +50,9 @@ fun MainScreen(viewModel: MapViewModel,navController: NavController) {
                 polyline?.let {
                     if (polyline.isNotEmpty()) {
                         Polyline(points = polyline, color = Color.Blue)
-                        for (point in 0..polyline.size step polyline.size / 10) {
-                            Marker(MarkerState(polyline[point]))
-                        }
+//                        for (point in 0..polyline.size step polyline.size / 10) {
+//                            Marker(MarkerState(polyline[point]))
+//                        }
                     }
                 }
             }

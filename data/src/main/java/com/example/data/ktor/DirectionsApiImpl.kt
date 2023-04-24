@@ -60,7 +60,7 @@ class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
                     host = TOMORROW_WEATHER_BASE_URL
                     path("v4", "weather", "forecast")
                     parameters.append("location", location)
-                    parameters.append("timesteps", "1m")
+                    parameters.append("timesteps", "1h")
                     parameters.append("apikey", API_KEY_WEATHER)
                 }
             }.body()

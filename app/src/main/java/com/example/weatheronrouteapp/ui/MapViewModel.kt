@@ -61,7 +61,7 @@ class MapViewModel(
                     val startPointState = CameraPositionState(CameraPosition(latlngList[0], 7.0F, 0.0F, 0.0F))
                     mapState.emit(MapState(cameraLocationZoom = startPointState, polylines = latlngList))
 
-                    weatherTimelinesUseCase(response.data.pointsTimeList, "1m")
+                    weatherTimelinesUseCase(response.data.pointsTimeList, "1h")
                 }
                 is Resource.Failure -> {
                     _errorEvent.emit(SnackbarEvents(response.throwable.message.toString()))

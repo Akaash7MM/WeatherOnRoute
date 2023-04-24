@@ -84,7 +84,7 @@ fun LocationInputBox(
                     viewModel.getGeocoderData(changedValue)
                 }
             )
-            LazyColumn(modifier = Modifier.padding(8.dp)) {
+            LazyColumn(modifier = Modifier.padding(12.dp)) {
                 items(addressList) {address ->
                     Card(
                         modifier = Modifier.clickable {
