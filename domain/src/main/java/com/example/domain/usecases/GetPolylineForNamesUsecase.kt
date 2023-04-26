@@ -1,8 +1,8 @@
 package com.example.domain.usecases
 
 import com.example.domain.MapsRepository
-import com.example.domain.PointsTime
-import com.example.domain.PolylineData
+import com.example.domain.models.PointsTime
+import com.example.domain.models.PolylineData
 import com.example.domain.util.Resource
 
 class GetPolylineForNamesUsecase(private val mapsRepository: MapsRepository) {

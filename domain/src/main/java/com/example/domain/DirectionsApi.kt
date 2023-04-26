@@ -2,7 +2,6 @@ package com.example.domain
 
 import com.example.domain.util.Resource
 import com.example.domain.models.maps.DirectionsResponse
-import com.example.domain.models.weather.Timelines
 import com.example.domain.models.weather.WeatherTimeline
 
 

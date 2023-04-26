@@ -1,8 +1,9 @@
 package com.example.weatheronrouteapp.ui
 
-import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.models.PointsTime
+import com.example.domain.models.WeatherPoint
 import com.example.domain.usecases.GetGeocoderForNameUseCase
 import com.example.domain.usecases.GetPolylineForNamesUsecase
 import com.example.domain.usecases.GetWeatherTimelinesUseCase
@@ -15,10 +16,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MapViewModel(
     val polylineForNamesUsecase: GetPolylineForNamesUsecase,
@@ -31,13 +30,16 @@ class MapViewModel(
     private val _locationFields: MutableStateFlow<LocationFields> = MutableStateFlow(LocationFields())
     val locationFields = _locationFields.asStateFlow()
 
+    private val _hourlyPoints = MutableSharedFlow<List<WeatherPoint>>()
+    val hourlyPoints = _hourlyPoints.asSharedFlow()
+
     private val _errorEvent = MutableSharedFlow<SnackbarEvents>()
     val errorEvent = _errorEvent.asSharedFlow()
 
     private val _addressList: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     val addressList = _addressList.asStateFlow()
 
-    private val _lastEditedWasStart:MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    private val _lastEditedWasStart: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     val lastEditedWasStart = _lastEditedWasStart.asStateFlow()
 
     fun getDeviceLocation(fusedLocationProviderClient: FusedLocationProviderClient) {
@@ -54,36 +56,51 @@ class MapViewModel(
 
     fun getDirections() {
         viewModelScope.launch {
-            val response = polylineForNamesUsecase(_locationFields.value.originString, _locationFields.value.destinationString)
-            when (response) {
+            val polylineResponse = polylineForNamesUsecase(_locationFields.value.originString, _locationFields.value.destinationString)
+            when (polylineResponse) {
                 is Resource.Success -> {
-                    val latlngList = response.data.polyline.map { it.toLatLng() }
+                    val latlngList = polylineResponse.data.polyline.map { it.toLatLng() }
                     val startPointState = CameraPositionState(CameraPosition(latlngList[0], 7.0F, 0.0F, 0.0F))
                     mapState.emit(MapState(cameraLocationZoom = startPointState, polylines = latlngList))
-
-                    weatherTimelinesUseCase(response.data.pointsTimeList, "1h")
+                    getWeatherTimelines(polylineResponse.data.pointsTimeList)
                 }
                 is Resource.Failure -> {
-                    _errorEvent.emit(SnackbarEvents(response.throwable.message.toString()))
+                    _errorEvent.emit(SnackbarEvents(polylineResponse.throwable.message.toString()))
                 }
                 else -> {}
             }
         }
     }
-    fun setUiStateData(origin: String, destination: String,lastEdited:Boolean) {
+
+    private fun getWeatherTimelines(pointsTimeList: List<PointsTime>) {
+        viewModelScope.launch {
+            val weatherResponse = weatherTimelinesUseCase(pointsTimeList, "1h")
+            when(weatherResponse){
+                is Resource.Success  -> {
+                    _hourlyPoints.emit(weatherResponse.data)
+                }
+                is Resource.Failure -> {
+                    _errorEvent.emit(SnackbarEvents(weatherResponse.throwable.message.toString()))
+
+                }
+            }
+        }
+    }
+
+    fun setUiStateData(origin: String, destination: String, lastEdited: Boolean) {
         _locationFields.value = _locationFields.value.copy(originString = origin, destinationString = destination)
         _lastEditedWasStart.value = lastEdited
     }
-    fun getGeocoderData(locationName:String) {
+    fun getGeocoderData(locationName: String) {
         viewModelScope.launch {
-            getGeocoderForNameUseCase(locationName).collectLatest {addressList ->
+            getGeocoderForNameUseCase(locationName).collectLatest { addressList ->
                 _addressList.emit(addressList)
             }
         }
     }
 
-    fun resetLocationFields(){
-        _locationFields.value = LocationFields("","")
+    fun resetLocationFields() {
+        _locationFields.value = LocationFields("", "")
         _addressList.value = emptyList()
     }
 

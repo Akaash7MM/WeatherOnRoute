@@ -1,6 +1,6 @@
-package com.example.domain
+package com.example.domain.models
 
-import java.awt.geom.Point2D
+import com.example.domain.models.PointsTime
 
 data class PolylineData(
     val polyline: List<Pair<Double,Double>>,

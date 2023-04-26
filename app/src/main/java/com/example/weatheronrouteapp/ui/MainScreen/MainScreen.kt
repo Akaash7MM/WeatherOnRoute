@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -20,9 +20,9 @@ import com.google.maps.android.compose.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen(viewModel: MapViewModel,navController: NavController) {
+fun MainScreen(viewModel: MapViewModel, navController: NavController) {
     val mapState by viewModel.mapState.collectAsState()
-    val uiState by viewModel.locationFields.collectAsState()
+    val weatherPoints by viewModel.hourlyPoints.collectAsState(initial = emptyList())
     val scaffoldState = rememberScaffoldState()
     val errorEvents by viewModel.errorEvent.collectAsState(initial = null)
     Scaffold(scaffoldState = scaffoldState) {
@@ -50,14 +50,24 @@ fun MainScreen(viewModel: MapViewModel,navController: NavController) {
                 polyline?.let {
                     if (polyline.isNotEmpty()) {
                         Polyline(points = polyline, color = Color.Blue)
-//                        for (point in 0..polyline.size step polyline.size / 10) {
-//                            Marker(MarkerState(polyline[point]))
-//                        }
+                        for (point in weatherPoints) {
+                            val markerState = MarkerState(
+                                position = LatLng(point.location.lat, point.location.lon)
+                            )
+                            val timeString = point.reachingTime
+                            val temprature = point.weatherData.values.temperature
+
+                            MarkerInfoWindowContent(markerState, content = { marker ->
+                                Column() {
+                                    Text(text = temprature.toString() + "C", style = TextStyle(fontSize = 22.sp))
+                                    Text(text = timeString, style = TextStyle(fontSize = 16.sp))
+                                }
+                            })
+                        }
                     }
                 }
             }
-            EnterLocationField(navController = navController,viewModel = viewModel)
-
+            EnterLocationField(navController = navController, viewModel = viewModel)
         }
     }
 }

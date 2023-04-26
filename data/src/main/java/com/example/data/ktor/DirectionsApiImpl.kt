@@ -17,9 +17,11 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
+    @OptIn(ExperimentalSerializationApi::class)
     private val client = HttpClient(engine) {
         install(ContentNegotiation) {
             json(
@@ -29,12 +31,20 @@ class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
                     coerceInputValues = true
                     ignoreUnknownKeys = true
                     encodeDefaults = true
+                    explicitNulls = false
                 }
             )
         }
         install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.ALL
+            logger = object:Logger{
+                override fun log(message: String) {
+                    message.split("time").forEach {
+                        println(it)
+                    }
+                }
+
+            }
+            level = LogLevel.BODY
         }
     }
     override suspend fun getDirections(origin: String, destination: String): Resource<DirectionsResponse> {
