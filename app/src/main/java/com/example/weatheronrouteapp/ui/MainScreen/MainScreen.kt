@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -46,24 +47,40 @@ fun MainScreen(viewModel: MapViewModel, navController: NavController) {
                 properties = mapProperties,
                 cameraPositionState = mapState.cameraLocationZoom ?: cameraPositionState
             ) {
+                val timeString = "11:30a"
+                val temperature = "34"
+                val markerState = rememberMarkerState(
+                    position = LatLng(30.9010, 75.8573)
+                )
+                MarkerInfoWindow(
+                    markerState,
+                    icon = null,
+                    content = { marker ->
+                        Surface(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(Color.White)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "$temperature\u00B0",
+                                    style = TextStyle(fontSize = 18.sp)
+                                )
+                                Text(text = timeString, style = TextStyle(fontSize = 16.sp))
+                            }
+                        }
+                    }
+                )
+                markerState.showInfoWindow()
+
                 val polyline: List<LatLng>? = mapState.polylines
                 polyline?.let {
                     if (polyline.isNotEmpty()) {
                         Polyline(points = polyline, color = Color.Blue)
-                        for (point in weatherPoints) {
-                            val markerState = MarkerState(
-                                position = LatLng(point.location.lat, point.location.lon)
-                            )
-                            val timeString = point.reachingTime
-                            val temprature = point.weatherData.values.temperature
-
-                            MarkerInfoWindowContent(markerState, content = { marker ->
-                                Column() {
-                                    Text(text = temprature.toString() + "C", style = TextStyle(fontSize = 22.sp))
-                                    Text(text = timeString, style = TextStyle(fontSize = 16.sp))
-                                }
-                            })
-                        }
                     }
                 }
             }

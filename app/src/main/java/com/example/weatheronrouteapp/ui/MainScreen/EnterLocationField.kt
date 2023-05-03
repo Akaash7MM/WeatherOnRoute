@@ -33,8 +33,7 @@ fun EnterLocationField(viewModel: MapViewModel, navController: NavController) {
         TextField(
             modifier = Modifier
                 .wrapContentHeight()
-                .fillMaxWidth()
-                .clickable {
+                .fillMaxWidth().clickable {
                     navController.navigate("location_input")
                 },
             value = "Enter Location Details",
