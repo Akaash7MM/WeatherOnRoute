@@ -5,6 +5,6 @@ object Constants {
     val TOMORROW_WEATHER_BASE_URL = "api.tomorrow.io"
     val API_KEY_MAPS = "AIzaSyB3h_km8dGJ_MP6Q6xDcwQNBrYuwknbn8g"
 
-//    "FBLO2dFv5xwLZRDqwxEg3PpoZRw80OWb"
-    val API_KEY_WEATHER = "LJzY1HIMXx1GnCXhaacpRFesLeTgGzEV"
+    // TODO Api key here
+    val API_KEY_WEATHER = ""
 }

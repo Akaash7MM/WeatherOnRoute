@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -55,12 +56,25 @@ fun MainScreen(viewModel: MapViewModel, navController: NavController) {
                                 position = LatLng(point.location.lat, point.location.lon)
                             )
                             val timeString = point.reachingTime
-                            val temprature = point.weatherData.values.temperature
+                            val temprature = point.weatherData.values.temperature.toString().take(2)
 
-                            MarkerInfoWindowContent(markerState, content = { marker ->
-                                Column() {
-                                    Text(text = temprature.toString() + "C", style = TextStyle(fontSize = 22.sp))
-                                    Text(text = timeString, style = TextStyle(fontSize = 16.sp))
+                            MarkerInfoWindow(markerState, content = { marker ->
+                                Surface(
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(Color.White)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "$temprature\u00B0",
+                                            style = TextStyle(fontSize = 18.sp)
+                                        )
+                                        Text(text = timeString, style = TextStyle(fontSize = 16.sp))
+                                    }
                                 }
                             })
                         }
