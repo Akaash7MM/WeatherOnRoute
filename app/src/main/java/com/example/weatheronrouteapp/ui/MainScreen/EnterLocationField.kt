@@ -33,15 +33,16 @@ fun EnterLocationField(viewModel: MapViewModel, navController: NavController) {
         TextField(
             modifier = Modifier
                 .wrapContentHeight()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("location_input")
+                },
             value = "Enter Location Details",
             readOnly = true,
             singleLine = true,
+            enabled = false,
             leadingIcon = {
                 Icon(
-                    modifier = Modifier.clickable {
-                        navController.navigate("location_input")
-                    },
                     imageVector = Icons.Filled.Search,
                     contentDescription = null
                 )
