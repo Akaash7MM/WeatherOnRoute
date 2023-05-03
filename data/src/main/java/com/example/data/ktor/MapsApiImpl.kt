@@ -4,7 +4,7 @@ import com.example.data.util.Constants.API_KEY_MAPS
 import com.example.data.util.Constants.API_KEY_WEATHER
 import com.example.data.util.Constants.GOOGLE_MAPS_BASE_URL
 import com.example.data.util.Constants.TOMORROW_WEATHER_BASE_URL
-import com.example.domain.DirectionsApi
+import com.example.domain.MapsApi
 import com.example.domain.models.maps.DirectionsResponse
 import com.example.domain.models.weather.WeatherTimeline
 import com.example.domain.util.Resource
@@ -20,7 +20,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-class DirectionsApiImpl(val engine: HttpClientEngine) : DirectionsApi {
+class MapsApiImpl(val engine: HttpClientEngine) : MapsApi {
     @OptIn(ExperimentalSerializationApi::class)
     private val client = HttpClient(engine) {
         install(ContentNegotiation) {

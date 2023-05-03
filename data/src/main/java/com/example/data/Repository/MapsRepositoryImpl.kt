@@ -4,7 +4,7 @@ import android.content.Context
 import android.location.Geocoder
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.domain.DirectionsApi
+import com.example.domain.MapsApi
 import com.example.domain.MapsRepository
 import com.example.domain.models.maps.DirectionsResponse
 import com.example.domain.util.Resource
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 
-class MapsRepositoryImpl(val api: DirectionsApi, val applicationContext: Context) : MapsRepository {
+class MapsRepositoryImpl(val api: MapsApi, val applicationContext: Context) : MapsRepository {
     override suspend fun getDirections(origin: String, destination: String): Resource<DirectionsResponse> {
         return withContext(Dispatchers.IO) {
             api.getDirections(origin, destination)

@@ -8,14 +8,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.example.data.Repository.WeatherRepositoryImpl
-import com.example.domain.DirectionsApi
+import com.example.domain.MapsApi
 import com.example.domain.MapsRepository
 import com.example.domain.WeatherRepository
 import com.example.domain.usecases.GetGeocoderForNameUseCase
 import com.example.domain.usecases.GetPolylineForNamesUsecase
 import com.example.domain.usecases.GetWeatherTimelinesUseCase
 import com.example.weatheronroute.Repository.MapsRepositoryImpl
-import com.example.weatheronroute.ktor.DirectionsApiImpl
+import com.example.weatheronroute.ktor.MapsApiImpl
 import com.example.weatheronrouteapp.theme.WeatherOnRouteAppTheme
 import com.example.weatheronrouteapp.ui.MapViewModel
 import com.example.weatheronrouteapp.ui.Navigation
@@ -27,7 +27,7 @@ import io.ktor.client.engine.android.*
 class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val api: DirectionsApi = DirectionsApiImpl(AndroidClientEngine(config = AndroidEngineConfig()))
+    private val api: MapsApi = MapsApiImpl(AndroidClientEngine(config = AndroidEngineConfig()))
     private val mapRepo: MapsRepository = MapsRepositoryImpl(api,this)
     private val weatherRepository: WeatherRepository = WeatherRepositoryImpl(api)
     private val usecaseMap = GetPolylineForNamesUsecase(mapRepo)
