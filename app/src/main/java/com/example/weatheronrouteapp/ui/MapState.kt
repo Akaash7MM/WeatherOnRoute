@@ -8,5 +8,7 @@ data class MapState(
     val lastKnownLocation: Location? = null,
     val polylines: List<LatLng>? = null,
     val cameraLocationZoom: CameraPositionState? = null,
-    val errorSnackbarMessage: String? = null
+    val errorSnackbarMessage: String? = null,
+    val duration:String? = null,
+    val distance:String? = null
 )

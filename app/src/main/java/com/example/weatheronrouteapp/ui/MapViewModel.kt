@@ -60,8 +60,16 @@ class MapViewModel(
             when (polylineResponse) {
                 is Resource.Success -> {
                     val latlngList = polylineResponse.data.polyline.map { it.toLatLng() }
+                    val duration = polylineResponse.data.polylineDuration
+                    val distance = polylineResponse.data.polylineDistance
+
                     val startPointState = CameraPositionState(CameraPosition(latlngList[0], 7.0F, 0.0F, 0.0F))
-                    mapState.emit(MapState(cameraLocationZoom = startPointState, polylines = latlngList))
+                    mapState.emit(MapState(
+                        cameraLocationZoom = startPointState,
+                        polylines = latlngList,
+                        duration = duration,
+                        distance = distance
+                    ))
                     getWeatherTimelines(polylineResponse.data.pointsTimeList)
                 }
                 is Resource.Failure -> {

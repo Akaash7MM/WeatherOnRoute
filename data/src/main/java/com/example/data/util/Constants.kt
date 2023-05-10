@@ -6,5 +6,5 @@ object Constants {
     val API_KEY_MAPS = "AIzaSyB3h_km8dGJ_MP6Q6xDcwQNBrYuwknbn8g"
 
     // TODO Api key here
-    val API_KEY_WEATHER = ""
+    val API_KEY_WEATHER = "LJzY1HIMXx1GnCXhaacpRFesLeTgGzEV"
 }

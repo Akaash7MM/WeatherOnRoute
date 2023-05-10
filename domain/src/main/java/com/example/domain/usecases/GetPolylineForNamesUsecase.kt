@@ -12,6 +12,9 @@ class GetPolylineForNamesUsecase(private val mapsRepository: MapsRepository) {
             is Resource.Success -> {
                 val latlngList = mutableListOf<Pair<Double, Double>>()
                 val pointsTime = mutableListOf<PointsTime>()
+                val leg = response.data.routes[0].legs[0]
+                val duration = leg.duration.text
+                val distance = leg.distance.text
                 val steps = response.data.routes[0].legs[0].steps
                 for (step in steps) {
                     val timeFromOrigin = if (pointsTime.lastIndex == -1)step.duration.value else pointsTime[pointsTime.lastIndex].timeFromOrigin + step.duration.value
@@ -20,7 +23,7 @@ class GetPolylineForNamesUsecase(private val mapsRepository: MapsRepository) {
                     pointsTime.add(PointsTime(endLocationPair, timeFromOrigin))
                     latlngList.addAll(decodePoly(step.polyline.points))
                 }
-                val polylineData = PolylineData(latlngList, pointsTime)
+                val polylineData = PolylineData(latlngList, pointsTime,distance,duration)
                 Resource.Success(polylineData)
             }
             is Resource.Failure -> response

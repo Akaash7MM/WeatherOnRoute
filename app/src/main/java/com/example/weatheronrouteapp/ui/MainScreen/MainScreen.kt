@@ -10,10 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.weatheronrouteapp.R
 import com.example.weatheronrouteapp.ui.MainScreen.EnterLocationField
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -81,7 +83,22 @@ fun MainScreen(viewModel: MapViewModel, navController: NavController) {
                     }
                 }
             }
-            EnterLocationField(navController = navController, viewModel = viewModel)
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+                EnterLocationField(navController = navController, viewModel = viewModel)
+                mapState.distance?.let {
+                    Surface(modifier = Modifier
+                        .wrapContentSize()
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(mapState.distance ?: "304 km")
+                            Text(mapState.duration ?:"5h 32m")
+                        }
+                    }
+                }
+
+            }
         }
     }
 }
