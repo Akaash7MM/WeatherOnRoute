@@ -21,22 +21,27 @@ import androidx.navigation.NavController
 import com.example.weatheronrouteapp.ui.MapViewModel
 
 @Composable
-fun EnterLocationField(viewModel: MapViewModel, navController: NavController) {
+fun EnterLocationField(
+    viewModel: MapViewModel,
+    navController: NavController,
+) {
     Box(
-        modifier = Modifier
-            .wrapContentHeight(Alignment.Top)
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+        modifier =
+            Modifier
+                .wrapContentHeight(Alignment.Top)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White),
     ) {
         TextField(
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .clickable {
-                    navController.navigate("location_input")
-                },
+            modifier =
+                Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("location_input")
+                    },
             value = "Enter Location Details",
             readOnly = true,
             singleLine = true,
@@ -44,18 +49,19 @@ fun EnterLocationField(viewModel: MapViewModel, navController: NavController) {
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             },
             textStyle = TextStyle(color = Color.DarkGray, fontSize = 18.sp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.White,
-                disabledIndicatorColor = Color.White,
-                unfocusedIndicatorColor = Color.White,
-                cursorColor = Color.White,
-                backgroundColor = Color.White
-            ),
-            onValueChange = {}
+            colors =
+                TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.White,
+                    disabledIndicatorColor = Color.White,
+                    unfocusedIndicatorColor = Color.White,
+                    cursorColor = Color.White,
+                    backgroundColor = Color.White,
+                ),
+            onValueChange = {},
         )
     }
 }

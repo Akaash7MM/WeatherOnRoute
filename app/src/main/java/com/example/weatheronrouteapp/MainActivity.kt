@@ -25,16 +25,15 @@ import com.google.android.material.elevation.SurfaceColors
 import io.ktor.client.engine.android.*
 
 class MainActivity : ComponentActivity() {
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val api: MapsApi = MapsApiImpl(AndroidClientEngine(config = AndroidEngineConfig()))
-    private val mapRepo: MapsRepository = MapsRepositoryImpl(api,this)
+    private val mapRepo: MapsRepository = MapsRepositoryImpl(api, this)
     private val weatherRepository: WeatherRepository = WeatherRepositoryImpl(api)
     private val usecaseMap = GetPolylineForNamesUsecase(mapRepo)
     private val usecaseAddress = GetGeocoderForNameUseCase(mapRepo)
     private val usecaseWeather = GetWeatherTimelinesUseCase(weatherRepository)
     private val viewModel: MapViewModel by lazy {
-        MapViewModel(usecaseMap, usecaseWeather,usecaseAddress)
+        MapViewModel(usecaseMap, usecaseWeather, usecaseAddress)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +47,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -55,15 +55,17 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-    private fun askPermissions() = when (PackageManager.PERMISSION_GRANTED) {
-        ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) -> {
-            viewModel.getDeviceLocation(fusedLocationProviderClient)
+    private fun askPermissions() =
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            -> {
+                viewModel.getDeviceLocation(fusedLocationProviderClient)
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
         }
-        else -> {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
 }

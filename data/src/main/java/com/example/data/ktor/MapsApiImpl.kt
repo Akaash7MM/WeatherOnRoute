@@ -20,60 +20,70 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-class MapsApiImpl(val engine: HttpClientEngine) : MapsApi {
+class MapsApiImpl(
+    val engine: HttpClientEngine,
+) : MapsApi {
     @OptIn(ExperimentalSerializationApi::class)
-    private val client = HttpClient(engine) {
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    isLenient = true
-                    coerceInputValues = true
-                    ignoreUnknownKeys = true
-                    encodeDefaults = true
-                    explicitNulls = false
-                }
-            )
-        }
-        install(Logging) {
-            logger = object:Logger{
-                override fun log(message: String) {
-                    message.split("time").forEach {
-                        println(it)
-                    }
-                }
-
+    private val client =
+        HttpClient(engine) {
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                        coerceInputValues = true
+                        ignoreUnknownKeys = true
+                        encodeDefaults = true
+                        explicitNulls = false
+                    },
+                )
             }
-            level = LogLevel.BODY
+            install(Logging) {
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            message.split("time").forEach {
+                                println(it)
+                            }
+                        }
+                    }
+                level = LogLevel.BODY
+            }
         }
-    }
-    override suspend fun getDirections(origin: String, destination: String): Resource<DirectionsResponse> {
-        return safeResult {
-            client.get {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = GOOGLE_MAPS_BASE_URL
-                    path("maps", "api", "directions", "json")
-                    parameters.append("origin", origin)
-                    parameters.append("destination", destination)
-                    parameters.append("key", API_KEY_MAPS)
-                }
-            }.body()
-        }
-    }
 
-    override suspend fun getWeather(location: String, timeSteps: String): Resource<WeatherTimeline> {
-        return safeResult {
-            client.get {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = TOMORROW_WEATHER_BASE_URL
-                    path("v4", "weather", "forecast")
-                    parameters.append("location", location)
-                    parameters.append("timesteps", "1h")
-                    parameters.append("apikey", API_KEY_WEATHER)
-                }
-            }.body()
+    override suspend fun getDirections(
+        origin: String,
+        destination: String,
+    ): Resource<DirectionsResponse> =
+        safeResult {
+            client
+                .get {
+                    url {
+                        protocol = URLProtocol.HTTPS
+                        host = GOOGLE_MAPS_BASE_URL
+                        path("maps", "api", "directions", "json")
+                        parameters.append("origin", origin)
+                        parameters.append("destination", destination)
+                        parameters.append("key", API_KEY_MAPS)
+                    }
+                }.body()
         }
-    }
+
+    override suspend fun getWeather(
+        location: String,
+        timeSteps: String,
+    ): Resource<WeatherTimeline> =
+        safeResult {
+            client
+                .get {
+                    url {
+                        protocol = URLProtocol.HTTPS
+                        host = TOMORROW_WEATHER_BASE_URL
+                        path("v4", "weather", "forecast")
+                        parameters.append("location", location)
+                        parameters.append("timesteps", "1h")
+                        parameters.append("apikey", API_KEY_WEATHER)
+                    }
+                }.body()
+        }
 }
